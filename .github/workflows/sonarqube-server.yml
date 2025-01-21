@@ -41,12 +41,8 @@ jobs:
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
       - name: Build and analyze
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:$(echo $GITHUB_REPOSITORY | cut -d'/' -f1)-gh_$(echo $GITHUB_REPOSITORY | cut -d'/' -f2) /n:$(echo $GITHUB_REPOSITORY | cut -d'/' -f1)-gh_$(echo $GITHUB_REPOSITORY | cut -d'/' -f2) /d:sonar.token='$SONAR_TOKEN' /d:sonar.host.url=$SONAR_HOST_URL /d:sonar.verbose=true 
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:$(echo ${{ github.repository }} | cut -d'/' -f1)-gh_$(echo ${{ github.repository }} | cut -d'/' -f2) /n:$(echo ${{ github.repository }} | cut -d'/' -f1)-gh_$(echo ${{ github.repository }} | cut -d'/' -f2) /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" /d:sonar.verbose=true 
           dotnet build CSharpProject/SomeConsoleApplication.sln
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token='$SONAR_TOKEN'
