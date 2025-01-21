@@ -6,10 +6,12 @@ on:
     branches:
       - main # the name of your main branch
   pull_request:
-    types: [opened, synchronize, reopened]
+      types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    
 jobs:
   build:
-    name: Build
+    name: SonarQube-Server
     runs-on: windows-latest
     steps:
       - name: Set up JDK 17
