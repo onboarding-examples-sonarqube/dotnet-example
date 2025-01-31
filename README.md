@@ -24,7 +24,7 @@ __**PLEASE READ OUR SONARQUBE DOCUMENTATION FOR WORKING WITH GITHUB ACTIONS PIPE
 ## Example to fail the entire pipeline if Quality Gate fails
 There may be situations or branches in which you will like to fail the pipeline if the SonarQube Quality Gate fails in order to stop any other steps in the pipeline.  
 This can be done by adding `sonar.qualitygate.wait=true` 
-to the parameters section in the **dotnet-sonarscanner begin** command.  
+to the parameters section in the `dotnet-sonarscanner begin` command.  
 
 Example:
 ``` sh
