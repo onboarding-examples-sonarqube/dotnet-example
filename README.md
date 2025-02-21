@@ -34,3 +34,6 @@ Example:
     .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
           
 ```
+
+__**For more examples please check:**__
+[Onboarding Examples](https://github.com/sonar-solutions/Onboarding-Examples-List)
