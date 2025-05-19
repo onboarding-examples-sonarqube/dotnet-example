@@ -3,8 +3,7 @@ on:
   push:
     paths:
       - 'CSharpProject/**'
-    branches:
-      - main # the name of your main branch
+    branches: [main, master, develop]
   pull_request:
       types: [opened, synchronize, reopened]
   workflow_dispatch:
