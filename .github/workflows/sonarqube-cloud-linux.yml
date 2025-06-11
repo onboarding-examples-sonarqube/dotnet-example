@@ -1,53 +1,53 @@
-name: SonarQube-Cloud
+name: SonarQube-Cloud-Linux
 on:
   push:
     paths:
       - 'CSharpProject/**'
-    branches:
-      - main # the name of your main branch
+    branches: [main, master, develop]
   pull_request:
       types: [opened, synchronize, reopened]
   workflow_dispatch:
 
 jobs:
   build:
-    name: SonarQube-Cloud
-    runs-on: windows-latest
+    name: SonarQube-Cloud-Linux
+    runs-on: ubuntu-latest
     steps:
       - name: Set up JDK 17
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
-          java-version: 1.17
+          java-version: 17
+          distribution: 'zulu' # Alternative distribution options are available
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Cache SonarQube packages
         uses: actions/cache@v4.2.0
         with:
-          path: ~\.sonar\cache
+          path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
       - name: Cache SonarQube scanner
         id: cache-sonar-scanner
         uses: actions/cache@v4.2.0
         with:
-          path: .\.sonar\scanner
+          path: ./.sonar/scanner
           key: ${{ runner.os }}-sonar-scanner
           restore-keys: ${{ runner.os }}-sonar-scanner
       - name: Install SonarQube scanner
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-        shell: powershell
+        shell: bash
         run: |
-          New-Item -Path .\.sonar\scanner -ItemType Directory
-          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+          mkdir -p ./.sonar/scanner
+          dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
       - name: Set Project Key/Name
         # This step sets the project key and project name. It will be OrgName+"-gh"+RepoName. You can modify it as needed.
         id: set-project-key
         run: |
           echo "PROJECT_KEY=$(echo ${{ github.repository }} | cut -d'/' -f1)-gh_$(echo ${{ github.repository }} | cut -d'/' -f2)" >> $GITHUB_ENV
       - name: Build and analyze
-        shell: powershell
+        shell: bash
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:${PROJECT_KEY} /n:${PROJECT_KEY} /o:"github-onboarding-examples" /d:sonar.token="${{ secrets.SONARQUBE_CLOUD_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.verbose=true 
+          ./.sonar/scanner/dotnet-sonarscanner begin /k:$PROJECT_KEY /n:$PROJECT_KEY /d:sonar.token="${{ secrets.SONARQUBE_CLOUD_TOKEN }}" /o:"github-onboarding-examples" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.verbose=true 
           dotnet build CSharpProject/SomeConsoleApplication.sln
-          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONARQUBE_CLOUD_TOKEN }}"
+          ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONARQUBE_CLOUD_TOKEN }}"

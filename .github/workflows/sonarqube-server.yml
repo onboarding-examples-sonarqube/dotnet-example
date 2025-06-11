@@ -3,8 +3,7 @@ on:
   push:
     paths:
       - 'CSharpProject/**'
-    branches:
-      - main # the name of your main branch
+    branches: [main, master, develop]
   pull_request:
       types: [opened, synchronize, reopened]
   workflow_dispatch:
@@ -40,9 +39,20 @@ jobs:
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+      - name: Set Project Key/Name
+        # This step sets the project key and project name. It will be OrgName+"-gh"+RepoName. You can modify it as needed.
+        id: set-project-key
+        shell: powershell
+        run: |
+          $repoName = "${{ github.repository }}".Split("/")
+          $orgName = $repoName[0]
+          $projectName = $repoName[1]
+          $projectKey = "$orgName-gh_$projectName"
+          # Set as a job-level environment variable that all subsequent steps can access
+          Add-Content -Path $env:GITHUB_ENV -Value "PROJECT_KEY=$projectKey"
       - name: Build and analyze
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:$(echo ${{ github.repository }} | cut -d'/' -f1)-gh_$(echo ${{ github.repository }} | cut -d'/' -f2) /n:$(echo ${{ github.repository }} | cut -d'/' -f1)-gh_$(echo ${{ github.repository }} | cut -d'/' -f2) /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}" /d:sonar.verbose=true 
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"$env:PROJECT_KEY" /n:"$env:PROJECT_KEY" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}" /d:sonar.verbose=true 
           dotnet build CSharpProject/SomeConsoleApplication.sln
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
