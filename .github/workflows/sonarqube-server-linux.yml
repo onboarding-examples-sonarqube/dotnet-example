@@ -1,4 +1,4 @@
-name: SonarQube-Server
+name: SonarQube-Server-Linux
 on:
   push:
     paths:
@@ -10,8 +10,8 @@ on:
 
 jobs:
   build:
-    name: SonarQube-Server
-    runs-on: windows-latest
+    name: SonarQube-Server-Linux
+    runs-on: ubuntu-latest
     steps:
       - name: Set up JDK 17
         uses: actions/setup-java@v1
@@ -23,36 +23,30 @@ jobs:
       - name: Cache SonarQube packages
         uses: actions/cache@v4.2.0
         with:
-          path: ~\.sonar\cache
+          path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
       - name: Cache SonarQube scanner
         id: cache-sonar-scanner
         uses: actions/cache@v4.2.0
         with:
-          path: .\.sonar\scanner
+          path: ./.sonar/scanner
           key: ${{ runner.os }}-sonar-scanner
           restore-keys: ${{ runner.os }}-sonar-scanner
       - name: Install SonarQube scanner
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-        shell: powershell
+        shell: bash
         run: |
-          New-Item -Path .\.sonar\scanner -ItemType Directory
-          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+          mkdir -p ./.sonar/scanner
+          dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
       - name: Set Project Key/Name
         # This step sets the project key and name based on the repository name and the organization name.
         id: set-project-key
-        shell: powershell
         run: |
-          $repoName = "${{ github.repository }}".Split("/")
-          #$orgName = $repoName[0]
-          #$projectName = $repoName[1]
-          $projectKey = $repoName[0]-gh_$repoName[1]
-          # Set as a job-level environment variable that all subsequent steps can access
-          Add-Content -Path $env:GITHUB_ENV -Value "PROJECT_KEY=$projectKey"
+          echo "PROJECT_KEY=$(echo ${{ github.repository }} | cut -d'/' -f1)-gh_$(echo ${{ github.repository }} | cut -d'/' -f2)" >> $GITHUB_ENV
       - name: Build and analyze
-        shell: powershell
+        shell: bash
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"$env:PROJECT_KEY" /n:"$env:PROJECT_KEY" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}" /d:sonar.verbose=true 
+          ./.sonar/scanner/dotnet-sonarscanner begin /k:$PROJECT_KEY /n:$PROJECT_KEY /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}" /d:sonar.verbose=true 
           dotnet build CSharpProject/SomeConsoleApplication.sln
-          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
