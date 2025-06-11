@@ -48,11 +48,11 @@ jobs:
           $orgName = $repoName[0]
           $projectName = $repoName[1]
           $projectKey = "$orgName-gh_$projectName"
-          echo "PROJECT_KEY=$projectKey"
-          echo "PROJECT_KEY=$projectKey" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          # Set as a job-level environment variable that all subsequent steps can access
+          Add-Content -Path $env:GITHUB_ENV -Value "PROJECT_KEY=$projectKey"
       - name: Build and analyze
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"${PROJECT_KEY}" /n:"${PROJECT_KEY}" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}" /d:sonar.verbose=true 
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"$env:PROJECT_KEY" /n:"$env:PROJECT_KEY" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}" /d:sonar.verbose=true 
           dotnet build CSharpProject/SomeConsoleApplication.sln
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
