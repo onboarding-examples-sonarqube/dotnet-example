@@ -52,6 +52,6 @@ jobs:
       - name: Build and analyze
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:${PROJECT_KEY} /n:${PROJECT_KEY} /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}" /d:sonar.verbose=true 
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"${PROJECT_KEY}"" /n:"${PROJECT_KEY}"" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}" /d:sonar.verbose=true 
           dotnet build CSharpProject/SomeConsoleApplication.sln
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
