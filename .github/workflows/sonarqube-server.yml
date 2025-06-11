@@ -40,7 +40,7 @@ jobs:
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
       - name: Set Project Key/Name
-        # This step sets the project key and name based on the repository name and the organization name.
+        # This step sets the project key and project name. It will be OrgName+"-gh"+RepoName. You can modify it as needed.
         id: set-project-key
         shell: powershell
         run: |
