@@ -45,9 +45,9 @@ jobs:
         shell: powershell
         run: |
           $repoName = "${{ github.repository }}".Split("/")
-          $orgName = $repoName[0]
-          $projectName = $repoName[1]
-          $projectKey = "$orgName-gh_$projectName"
+          #$orgName = $repoName[0]
+          #$projectName = $repoName[1]
+          $projectKey = "$repoName[0]-gh_$repoName[1]"
           # Set as a job-level environment variable that all subsequent steps can access
           Add-Content -Path $env:GITHUB_ENV -Value "PROJECT_KEY=$projectKey"
       - name: Build and analyze
