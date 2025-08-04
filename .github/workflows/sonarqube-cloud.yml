@@ -48,6 +48,6 @@ jobs:
       - name: Build and analyze
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:${PROJECT_KEY} /n:${PROJECT_KEY} /o:"github-onboarding-examples" /d:sonar.token="${{ secrets.SONARQUBE_CLOUD_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.verbose=true 
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:${PROJECT_KEY} /n:"Onboarding Example - GitHub - DotNet Example" /o:"github-onboarding-examples" /d:sonar.token="${{ secrets.SONARQUBE_CLOUD_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.verbose=true 
           dotnet build CSharpProject/SomeConsoleApplication.sln
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONARQUBE_CLOUD_TOKEN }}"
